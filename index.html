@@ -15,6 +15,8 @@
             flex-direction: column;
             align-items: center; 
             min-height: 100vh;
+            /* Prevent horizontal scroll on mobile if swipe is aggressive */
+            overflow-x: hidden; 
         }
 
         /* --- NAVBAR --- */
@@ -74,6 +76,9 @@
             display: grid;
             grid-template-columns: 1fr;
             grid-template-rows: 1fr;
+            
+            /* Improve touch handling */
+            touch-action: pan-y; /* Allows vertical scroll, captures horizontal swipe */
         }
 
         /* --- VIDEO STYLES --- */
@@ -134,14 +139,14 @@
 
     <div class="feed-header">
         <h1>If you feel pain in your eyes when you see people's decisions, <br>then you are suffering from an evil eye.</h1>
-        <p style="color: #8e8e8e;">Tempat ni website bukan lu yang cipta.<br> #tapiengkaumemilihseolahengkautaktahu</p>
+        <p style="color: #8e8e8e;">Tempat ni website bukan lu yang cipta.</p>
     </div>
 
     <div class="smartphone-frame" id="slider">
         
         <video class="feed-image fit-screen active" 
                autoplay muted loop playsinline 
-               onclick="window.open('https://www.youtube.com/watch?v=auhjO7rM2Xc', '_blank')" 
+               onclick="window.open('https://google.com', '_blank')" 
                style="cursor: pointer;">
             <source src="website2.mp4" type="video/mp4">
         </video>
@@ -162,33 +167,40 @@
     </div>
 
     <script>
+        const sliderContainer = document.getElementById('slider');
         const slides = document.querySelectorAll('.feed-image');
         const dots = document.querySelectorAll('.dot');
         let currentSlide = 0;
         let slideInterval;
 
+        // --- CORE SLIDER FUNCTION ---
         function updateSlider(index) {
-            // 1. Hide all slides and reset dots
+            // Hide old
             slides.forEach(slide => slide.classList.remove('active'));
             dots.forEach(dot => dot.classList.remove('active'));
 
-            // 2. Prepare the NEW slide
+            // Prepare new
             const nextVideo = slides[index];
-
-            // --- RESTART LOGIC ---
-            nextVideo.currentTime = 0; 
+            nextVideo.currentTime = 0; // Restart video
             nextVideo.play(); 
 
-            // 3. Show the new slide
+            // Show new
             nextVideo.classList.add('active');
             dots[index].classList.add('active');
             
             currentSlide = index;
         }
 
+        // --- NAVIGATION LOGIC ---
         function nextSlide() {
             let nextIndex = (currentSlide + 1) % slides.length;
             updateSlider(nextIndex);
+        }
+
+        function prevSlide() {
+            // Logic to go backwards and wrap around to the end if needed
+            let prevIndex = (currentSlide - 1 + slides.length) % slides.length;
+            updateSlider(prevIndex);
         }
 
         function jumpToSlide(index) {
@@ -196,9 +208,9 @@
             resetTimer();
         }
 
+        // --- TIMER LOGIC ---
         function startTimer() {
-            // 20 Seconds
-            slideInterval = setInterval(nextSlide, 20000);
+            slideInterval = setInterval(nextSlide, 20000); // 20 Seconds
         }
 
         function resetTimer() {
@@ -206,6 +218,40 @@
             startTimer();
         }
 
+        // --- TOUCH SWIPE LOGIC (NEW) ---
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        sliderContainer.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, {passive: true});
+
+        sliderContainer.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, {passive: true});
+
+        function handleSwipe() {
+            // Calculate distance swiped
+            let swipeDistance = touchEndX - touchStartX;
+            
+            // Threshold: User must swipe at least 50px to trigger change
+            // This prevents accidental swipes when just trying to click
+            if (Math.abs(swipeDistance) > 50) { 
+                
+                if (swipeDistance < 0) {
+                    // Swiped Left -> Next
+                    nextSlide();
+                } else {
+                    // Swiped Right -> Previous
+                    prevSlide();
+                }
+                
+                resetTimer(); // Reset the 20s timer on manual swipe
+            }
+        }
+
+        // Initialize
         startTimer();
     </script>
 
