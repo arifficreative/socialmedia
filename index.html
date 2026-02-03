@@ -15,7 +15,6 @@
             flex-direction: column;
             align-items: center; 
             min-height: 100vh;
-            /* Prevent horizontal scroll on mobile if swipe is aggressive */
             overflow-x: hidden; 
         }
 
@@ -51,6 +50,7 @@
             font-weight: 500;
         }
 
+        /* --- ANIMATED HEADER STYLES --- */
         .feed-header {
             text-align: center;
             margin-bottom: 30px;
@@ -58,27 +58,61 @@
             padding: 0 20px;
         }
 
+        /* Animation Definition: Focus In */
+        @keyframes focusIn {
+            0% {
+                filter: blur(12px);
+                opacity: 0;
+                transform: scale(0.9); /* Starts slightly smaller */
+            }
+            100% {
+                filter: blur(0);
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Animation Definition: Slide Up (for the bottom text) */
+        @keyframes slideUpFade {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .feed-header h1 {
+            /* Applies the blur effect */
+            animation: focusIn 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+            font-weight: 700;
+            line-height: 1.4;
+        }
+
+        .feed-header p {
+            color: #8e8e8e;
+            /* Applies the slide up effect with a 1-second delay */
+            animation: slideUpFade 1s ease forwards;
+            opacity: 0; /* Start hidden */
+            animation-delay: 1s; /* Wait for H1 to finish before showing */
+        }
+
         /* --- SMARTPHONE CONTAINER STYLES --- */
         .smartphone-frame {
-            /* 1080x1920 ratio */
             width: 320px; 
             aspect-ratio: 9 / 16; 
-            
-            /* Phone Aesthetics */
             background-color: #000; 
             border: 12px solid #1a1a1a; 
             border-radius: 40px; 
             box-shadow: 0 20px 50px rgba(0,0,0,0.15); 
             position: relative;
             overflow: hidden; 
-            
-            /* Stack videos inside */
             display: grid;
             grid-template-columns: 1fr;
             grid-template-rows: 1fr;
-            
-            /* Improve touch handling */
-            touch-action: pan-y; /* Allows vertical scroll, captures horizontal swipe */
+            touch-action: pan-y; 
         }
 
         /* --- VIDEO STYLES --- */
@@ -91,7 +125,6 @@
             transition: opacity 1s ease; 
         }
 
-        /* Class for Landscape videos to fit inside the screen */
         .feed-image.fit-screen {
             object-fit: contain; 
         }
@@ -139,24 +172,24 @@
 
     <div class="feed-header">
         <h1>If you feel pain in your eyes when you see people's decisions, <br>then you are suffering from an evil eye.</h1>
-        <p style="color: #8e8e8e;">Tempat ni website bukan lu yang cipta. <br> #taktahuapa2 </p>
+        <p style="color: #8e8e8e;">Tempat ni website bukan lu yang cipta.</p>
     </div>
 
     <div class="smartphone-frame" id="slider">
         
         <video class="feed-image fit-screen active" 
                autoplay muted loop playsinline 
-               onclick="window.open('https://www.youtube.com/watch?v=auhjO7rM2Xc', '_blank')" 
+               onclick="window.open('https://google.com', '_blank')" 
                style="cursor: pointer;">
-            <source src="website2.mp4" type="video/mp4">
+            <source src="video1.mp4" type="video/mp4">
         </video>
         
         <video class="feed-image" autoplay muted loop playsinline>
-            <source src="website3.mp4" type="video/mp4">
+            <source src="video2.mp4" type="video/mp4">
         </video>
         
         <video class="feed-image" autoplay muted loop playsinline>
-            <source src="website1.mp4" type="video/mp4">
+            <source src="video3.mp4" type="video/mp4">
         </video>
 
         <div class="slider-dots">
@@ -173,32 +206,26 @@
         let currentSlide = 0;
         let slideInterval;
 
-        // --- CORE SLIDER FUNCTION ---
         function updateSlider(index) {
-            // Hide old
             slides.forEach(slide => slide.classList.remove('active'));
             dots.forEach(dot => dot.classList.remove('active'));
 
-            // Prepare new
             const nextVideo = slides[index];
-            nextVideo.currentTime = 0; // Restart video
+            nextVideo.currentTime = 0; 
             nextVideo.play(); 
 
-            // Show new
             nextVideo.classList.add('active');
             dots[index].classList.add('active');
             
             currentSlide = index;
         }
 
-        // --- NAVIGATION LOGIC ---
         function nextSlide() {
             let nextIndex = (currentSlide + 1) % slides.length;
             updateSlider(nextIndex);
         }
 
         function prevSlide() {
-            // Logic to go backwards and wrap around to the end if needed
             let prevIndex = (currentSlide - 1 + slides.length) % slides.length;
             updateSlider(prevIndex);
         }
@@ -208,9 +235,7 @@
             resetTimer();
         }
 
-        // --- TIMER LOGIC ---
         function startTimer() {
-            // CHANGED: 30000ms = 30 seconds
             slideInterval = setInterval(nextSlide, 30000); 
         }
 
@@ -219,7 +244,6 @@
             startTimer();
         }
 
-        // --- TOUCH SWIPE LOGIC ---
         let touchStartX = 0;
         let touchEndX = 0;
 
@@ -234,19 +258,16 @@
 
         function handleSwipe() {
             let swipeDistance = touchEndX - touchStartX;
-            
-            // Threshold > 50px
             if (Math.abs(swipeDistance) > 50) { 
                 if (swipeDistance < 0) {
-                    nextSlide(); // Swiped Left
+                    nextSlide(); 
                 } else {
-                    prevSlide(); // Swiped Right
+                    prevSlide(); 
                 }
                 resetTimer();
             }
         }
 
-        // Initialize
         startTimer();
     </script>
 
