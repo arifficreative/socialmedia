@@ -210,7 +210,8 @@
 
         // --- TIMER LOGIC ---
         function startTimer() {
-            slideInterval = setInterval(nextSlide, 20000); // 20 Seconds
+            // CHANGED: 30000ms = 30 seconds
+            slideInterval = setInterval(nextSlide, 30000); 
         }
 
         function resetTimer() {
@@ -218,7 +219,7 @@
             startTimer();
         }
 
-        // --- TOUCH SWIPE LOGIC (NEW) ---
+        // --- TOUCH SWIPE LOGIC ---
         let touchStartX = 0;
         let touchEndX = 0;
 
@@ -232,22 +233,16 @@
         }, {passive: true});
 
         function handleSwipe() {
-            // Calculate distance swiped
             let swipeDistance = touchEndX - touchStartX;
             
-            // Threshold: User must swipe at least 50px to trigger change
-            // This prevents accidental swipes when just trying to click
+            // Threshold > 50px
             if (Math.abs(swipeDistance) > 50) { 
-                
                 if (swipeDistance < 0) {
-                    // Swiped Left -> Next
-                    nextSlide();
+                    nextSlide(); // Swiped Left
                 } else {
-                    // Swiped Right -> Previous
-                    prevSlide();
+                    prevSlide(); // Swiped Right
                 }
-                
-                resetTimer(); // Reset the 20s timer on manual swipe
+                resetTimer();
             }
         }
 
